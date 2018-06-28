@@ -9,7 +9,7 @@
   overflow-x: hidden;
 }
 
-.overlay-element>:not([class^="overlay-"]){
+.overlay .overlay-element>:not([class^="overlay-"]){
   display: none;
 }
 
