@@ -6,6 +6,7 @@
 	 * - "namespace" option
 	 * - convert methods to be public
 	 * - investigate jquery "add" method for joining elements
+	 * - add "logging" option
 	 */
 
 	"use strict";
@@ -13,7 +14,7 @@
 	var pluginName = "overlay",
 		defaults = {
 			"enabled": true,
-			"showActions": true
+			"showProgress": true
 		};
 
 
@@ -42,7 +43,7 @@
 				.createStepContent()
 				.setActive();
 
-			return _this;
+			return _this
 		},
 
 		createOverlay: function () {
@@ -54,7 +55,7 @@
 
 			$(".overlay-content").append(_this.element);
 
-			return _this;
+			return _this
 		},
 
 
@@ -65,60 +66,62 @@
 			_this.content = $(".overlay-content");
 			_this.children = _this.element.children();
 			_this.currentStep = 1;
-			_this.numberOfSteps = _this.settings.steps ? _this.settings.steps.length : 1;
-			_this.steps = []
+			_this.maxStep = _this.settings.steps ? _this.settings.steps.length : 1;
+			_this.stepContainers = [];
 
-			return _this;
+			return _this
 		},
 
 
 		createStepContainers: function () {
 			var _this = this;
 
-			for (var x = 0; x < _this.numberOfSteps; x++) {
-				var intStep = x + 1;
-				_this.steps.push($("<div class='overlay-step step-" + intStep + "' />"))
+			for (var x = 0; x < _this.maxStep; x++) {
+				_this.stepContainers.push($("<div class='overlay-step step-" + (x + 1) + "' />"));
 			}
 
-			_this.element.append(_this.steps)
+			_this.element.append(_this.stepContainers);
 
-			return _this;
+			return _this
 		},
 
 
 		createStepContent: function () {
 			var _this = this;
 
-			for (var x = 0; x < _this.numberOfSteps; x++) {
+			for (var x = 0; x < _this.maxStep; x++) {
 
-				var step = _this.steps[x];
+				var step = _this.stepContainers[x];
 
 				if (_this.settings.steps) {
-					if (_this.settings.steps[x].title) {
-						step.append(_this.settings.steps[x].title)
+					var title = _this.settings.steps[x].title || "";
+					var content = _this.settings.steps[x].content || "";
+
+					if (title) {
+						step.append(title)
 					}
-					step.append(_this.settings.steps[x].content)
+					step.append(content)
 				} else {
 					step.append(_this.children)
 				}
 			}
 
-			return _this;
+			return _this
 		},
 
 
 		setActive: function (intStep) {
 			var _this = this;
 
-			var activeStep = intStep ? _this.currentStep + intStep : _this.currentStep;
+			var activeStep = _this.currentStep + (intStep || 0);
 
-			$(".step-" + _this.currentStep).hide().removeClass("active")
-			$(".step-" + activeStep).fadeIn().addClass("active")
+			$(".step-" + _this.currentStep).hide().removeClass("active");
+			$(".step-" + activeStep).fadeIn().addClass("active");
 
 			_this.currentStep = activeStep;
 
 			if (_this.settings.steps) {
-				_this.createProgress()
+				_this.createProgress();
 			}
 
 			_this.hideContent()
@@ -126,7 +129,7 @@
 				.positionContent()
 				.scrollTop();
 
-			return _this;
+			return _this
 		},
 
 
@@ -136,8 +139,8 @@
 
 			$(".overlay-actions").remove();
 
-			if (_this.settings.showActions) {
-				var text = _this.numberOfSteps > 1 ? (_this.currentStep + " / " + _this.numberOfSteps) : "";
+			if (_this.settings.showProgress) {
+				var text = _this.maxStep > 1 ? (_this.currentStep + " / " + _this.maxStep) : "";
 
 				_this.element.append(
 					$("<div class='overlay-actions text-center' />")
@@ -149,8 +152,7 @@
 				_this.bindStepActions();
 			}
 
-
-			return _this;
+			return _this
 		},
 
 
@@ -171,8 +173,8 @@
 		moveNext: function () {
 			var _this = this;
 
-			if (_this.currentStep === _this.numberOfSteps) {
-				if (_this.settings.onSubmit && typeof (_this.settings.onSubmit) === "function") {
+			if (_this.currentStep === _this.maxStep) {
+				if (_this.settings.onSubmit && typeof(_this.settings.onSubmit) === "function") {
 					_this.settings.onSubmit();
 				}
 			} else {
@@ -246,18 +248,12 @@
 			var _this = this;
 
 			if (_this.settings.hide) {
-				switch (typeof (_this.settings.hide)) {
-					case "string":
-						$(_this.settings.hide).hide();
-						break;
-					case "object":
-						_this.settings.hide.hide();
-						break;
-				}
+				$(_this.settings.hide).hide();
 			}
 
 			return _this
 		},
+
 
 		removeContent: function () {
 			var _this = this;
