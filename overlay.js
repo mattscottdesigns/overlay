@@ -216,7 +216,7 @@
 		},
 
 
-		bindStepActions() {
+		bindStepActions: function() {
 			var _this = this;
 
 			$(".btn-back").each(function () {
@@ -248,7 +248,14 @@
 			var _this = this;
 
 			if (_this.settings.hide) {
-				$(_this.settings.hide).hide();
+				switch (typeof (_this.settings.hide)) {
+					case "string":
+						$(_this.settings.hide).hide();
+						break;
+					case "object":
+						_this.settings.hide.hide();
+						break;
+				}
 			}
 
 			return _this
