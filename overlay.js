@@ -4,9 +4,7 @@
 	/**
 	 * TO DO
 	 * - "namespace" option
-	 * - convert methods to be public
-	 * - investigate jquery "add" method for joining elements
-	 * - add "logging" option
+	 * - "logging" option
 	 */
 
 	"use strict";
@@ -19,9 +17,10 @@
 
 
 	function Plugin(element, options) {
+
+		this.element = $(element).addClass("overlay-element");
 		this._defaults = $.extend({}, defaults, $.fn[pluginName].defaults);
 		this.settings = $.extend({}, this._defaults, options);
-		this.element = $(element).addClass("overlay-element");
 
 		if (this.settings.enabled) {
 			this.init();
@@ -45,6 +44,7 @@
 
 			return _this
 		},
+
 
 		createOverlay: function () {
 			var _this = this;
@@ -174,7 +174,7 @@
 			var _this = this;
 
 			if (_this.currentStep === _this.maxStep) {
-				if (_this.settings.onSubmit && typeof(_this.settings.onSubmit) === "function") {
+				if (_this.settings.onSubmit && _this.isFunction(_this.settings.onSubmit)) {
 					_this.settings.onSubmit();
 				}
 			} else {
@@ -216,7 +216,7 @@
 		},
 
 
-		bindStepActions: function() {
+		bindStepActions: function () {
 			var _this = this;
 
 			$(".btn-back").each(function () {
@@ -228,7 +228,7 @@
 			$(".btn-next,[type='submit']").each(function () {
 				$(this).on("click", function (e) {
 					e.preventDefault();
-					if (_this.settings.onValidate && typeof (_this.settings.onValidate) === "function") {
+					if (_this.settings.onValidate && _this.isFunction(_this.settings.onValidate)) {
 						if (_this.settings.onValidate()) {
 							_this.moveNext();
 						} else {
@@ -287,6 +287,10 @@
 			}, "slow");
 
 			return _this
+		},
+
+		isFunction: function (func) {
+			return (typeof (func) === "function")
 		}
 
 	});
