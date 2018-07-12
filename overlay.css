@@ -1,5 +1,3 @@
-.overlay-content {}
-
 .overlay-container {
   z-index: 100;
   position: fixed;
@@ -8,12 +6,16 @@
   bottom: 0;
   left: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.overlay .overlay-element>:not([class^="overlay-"]){
+  display: none;
 }
 
 .overlay-step:not(.active) {
   display: none;
 }
-
 
 .overlay-step {
   padding: 30px;
@@ -26,8 +28,6 @@
   margin-bottom: 30px;
 }
 
-
-
 .overlay-actions {
   position: fixed;
   left: 0;
@@ -39,12 +39,14 @@
   padding: 20px;
   /* box-shadow: 0px -10px 90px #fff; */
 }
+
 .btn-back,
 .btn-next {
   padding: 5px;
   border: 0;
   border-radius: 4px;
 }
+
 .btn-back {
   background: #fff;
 }
@@ -67,8 +69,6 @@
   margin-left: 10px;
   margin-right: 10px;
 }
-
-
 
 .overlay-title {
   margin-top: 0;
