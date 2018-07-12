@@ -18,11 +18,11 @@
 
 	function Plugin(element, options) {
 
-		this.element = $(element).addClass("overlay-element");
-		this._defaults = $.extend({}, defaults, $.fn[pluginName].defaults);
-		this.settings = $.extend({}, this._defaults, options);
+		this.$element = $(element).addClass("overlay-element");
+		this.defaults = $.extend({}, defaults, $.fn[pluginName].defaults);
+		this.settings = $.extend({}, this.defaults, options);
 
-		if (this.settings.enabled) {
+		if (this.settings.enabled && this.$element.length > 0) {
 			this.init();
 		}
 
@@ -34,125 +34,127 @@
 		init: function () {
 			var _this = this;
 
-			$("head").append('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />')
-
 			_this.createOverlay()
 				.createProps()
 				.createStepContainers()
 				.createStepContent()
 				.setActive();
 
-			return _this
+			return this
 		},
 
 
 		createOverlay: function () {
 			var _this = this;
 
+			$("head").append('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />')
+
 			$("body")
 				.addClass("overlay")
 				.prepend("<div class='overlay-container'><div class='overlay-content' /></div>");
 
-			$(".overlay-content").append(_this.element);
+			$(".overlay-content").append(_this.$element);
 
-			return _this
+			return this
 		},
 
 
 		createProps: function () {
 			var _this = this;
 
-			_this.container = $(".overlay-container");
-			_this.content = $(".overlay-content");
-			_this.children = _this.element.children();
+			_this.$container = $(".overlay-container");
+			_this.$content = $(".overlay-content");
+			_this.$stepContainers = [];
+			_this.stepCount = _this.settings.steps ? _this.settings.steps.length : 1;
 			_this.currentStep = 1;
-			_this.maxStep = _this.settings.steps ? _this.settings.steps.length : 1;
-			_this.stepContainers = [];
 
-			return _this
+			return this
 		},
 
 
 		createStepContainers: function () {
 			var _this = this;
 
-			for (var x = 0; x < _this.maxStep; x++) {
-				_this.stepContainers.push($("<div class='overlay-step step-" + (x + 1) + "' />"));
+			for (var x = 0; x < _this.stepCount; x++) {
+				_this.$stepContainers.push($("<div class='overlay-step step-" + (x + 1) + "' />"));
 			}
 
-			_this.element.append(_this.stepContainers);
+			_this.$element.append(_this.$stepContainers);
 
-			return _this
+			return this
 		},
 
 
 		createStepContent: function () {
 			var _this = this;
 
-			for (var x = 0; x < _this.maxStep; x++) {
+			for (var x = 0; x < _this.stepCount; x++) {
 
-				var step = _this.stepContainers[x];
+				var step = _this.$stepContainers[x];
 
 				if (_this.settings.steps) {
-					var title = _this.settings.steps[x].title || "";
-					var content = _this.settings.steps[x].content || "";
+					var title = _this.settings.steps[x].title;
+					var content = _this.settings.steps[x].content;
 
 					if (title) {
 						step.append(title)
 					}
-					step.append(content)
+
+					if (content) {
+						step.append(content)
+					}
 				} else {
-					step.append(_this.children)
+					step.append(_this.$element.children())
 				}
 			}
 
-			return _this
+			return this
 		},
 
 
-		setActive: function (intStep) {
-			var _this = this;
+		setActive: function (next) {
+			var _this = this,
+				next = typeof (next) !== 'undefined' ? next : 0;
 
-			var activeStep = _this.currentStep + (intStep || 0);
+			var activeStep = _this.currentStep + next;
 
 			$(".step-" + _this.currentStep).hide().removeClass("active");
 			$(".step-" + activeStep).fadeIn().addClass("active");
 
 			_this.currentStep = activeStep;
 
-			if (_this.settings.steps) {
-				_this.createProgress();
-			}
-
-			_this.hideContent()
+			_this.createProgress()
+				.hideContent()
 				.removeContent()
 				.positionContent()
 				.scrollTop();
 
-			return _this
+			return this
 		},
-
 
 
 		createProgress: function () {
 			var _this = this;
 
-			$(".overlay-actions").remove();
+			if (_this.settings.steps) {
 
-			if (_this.settings.showProgress) {
-				var text = _this.maxStep > 1 ? (_this.currentStep + " / " + _this.maxStep) : "";
+				$(".overlay-actions").remove();
 
-				_this.element.append(
-					$("<div class='overlay-actions text-center' />")
-					.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
-					.append("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
-					.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
-				);
+				if (_this.settings.showProgress) {
+					var text = _this.stepCount > 1 ? (_this.currentStep + " / " + _this.stepCount) : "";
 
-				_this.bindStepActions();
+					_this.$element.append(
+						$("<div class='overlay-actions text-center' />")
+						.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
+						.append("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
+						.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
+					);
+
+					_this.bindStepActions();
+				}
 			}
 
-			return _this
+			return this
 		},
 
 
@@ -166,14 +168,14 @@
 				window.history.back();
 			}
 
-			return _this
+			return this
 		},
 
 
 		moveNext: function () {
 			var _this = this;
 
-			if (_this.currentStep === _this.maxStep) {
+			if (_this.currentStep === _this.stepCount) {
 				if (_this.settings.onSubmit && _this.isFunction(_this.settings.onSubmit)) {
 					_this.settings.onSubmit();
 				}
@@ -181,38 +183,38 @@
 				_this.setActive(1)
 			}
 
-			return _this
+			return this
 		},
 
 
 		positionContent: function () {
 			var _this = this;
 
-			if (_this.settings.offsetTop) {
-				_this.element.css({
-					"marginTop": _this.settings.offsetTop()
-				})
 
-				$(window).resize(function () {
-					_this.element.css({
+			function setPosition() {
+				if (_this.settings.offsetTop) {
+					_this.$element.css({
 						"marginTop": _this.settings.offsetTop()
 					})
-				})
-			}
+				}
 
-			if (_this.settings.offsetBottom) {
-				_this.element.css({
-					"marginBottom": _this.settings.offsetBottom()
-				})
-
-				$(window).resize(function () {
-					_this.element.css({
+				if (_this.settings.offsetBottom) {
+					_this.$element.css({
 						"marginBottom": _this.settings.offsetBottom()
 					})
-				})
+				}
 			}
 
-			return _this
+
+			$(document).ready(function () {
+				setPosition();
+			});
+
+			$(window).resize(function () {
+				setPosition();
+			});
+
+			return this
 		},
 
 
@@ -225,7 +227,7 @@
 				});
 			});
 
-			$(".btn-next,[type='submit']").each(function () {
+			$(".btn-next").each(function () {
 				$(this).on("click", function (e) {
 					e.preventDefault();
 					if (_this.settings.onValidate && _this.isFunction(_this.settings.onValidate)) {
@@ -240,58 +242,52 @@
 				})
 			});
 
-			return _this
+			return this
 		},
 
 
 		hideContent: function () {
 			var _this = this;
 
-			if (_this.settings.hide) {
-				switch (typeof (_this.settings.hide)) {
-					case "string":
-						$(_this.settings.hide).hide();
-						break;
-					case "object":
-						_this.settings.hide.hide();
-						break;
-				}
-			}
+			if( _this.isValidObject(_this.settings.hide) ){
+				$(_this.settings.hide).hide();
+			} 
 
-			return _this
+			return this
 		},
 
 
 		removeContent: function () {
 			var _this = this;
 
-			if (_this.settings.remove) {
-				switch (typeof (_this.settings.remove)) {
-					case "string":
-						$(_this.settings.remove).remove();
-						break;
-					case "object":
-						_this.settings.remove.remove();
-						break;
-				}
-			}
+			if( _this.isValidObject(_this.settings.remove) ){
+				$(_this.settings.remove).remove();
+			} 
 
-			return _this
+			return this
 		},
+
 
 		scrollTop: function () {
 			var _this = this;
 
-			_this.container.animate({
+			_this.$container.animate({
 				scrollTop: 0
 			}, "slow");
 
-			return _this
+			return this
 		},
+
 
 		isFunction: function (func) {
 			return (typeof (func) === "function")
+		},
+
+
+		isValidObject: function(obj){
+			return (obj instanceof jQuery)
 		}
+
 
 	});
 
