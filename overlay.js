@@ -113,15 +113,15 @@
 
 
 		setActive: function (next) {
-			var _this = this,
-				next = typeof (next) !== 'undefined' ? next : 0;
+			next = typeof (next) !== 'undefined' ? next : 0;
 
-			var activeStep = _this.currentStep + next;
+			var _this = this;
+			var nextStep = _this.currentStep + next;
 
 			$(".step-" + _this.currentStep).hide().removeClass("active");
-			$(".step-" + activeStep).fadeIn().addClass("active");
+			$(".step-" + nextStep).fadeIn().addClass("active");
 
-			_this.currentStep = activeStep;
+			_this.currentStep = nextStep;
 
 			_this.createProgress()
 				.hideContent()
@@ -176,7 +176,7 @@
 			var _this = this;
 
 			if (_this.currentStep === _this.stepCount) {
-				if (_this.settings.onSubmit && _this.isFunction(_this.settings.onSubmit)) {
+				if (_this.isFunction(_this.settings.onSubmit)) {
 					_this.settings.onSubmit();
 				}
 			} else {
@@ -230,7 +230,7 @@
 			$(".btn-next").each(function () {
 				$(this).on("click", function (e) {
 					e.preventDefault();
-					if (_this.settings.onValidate && _this.isFunction(_this.settings.onValidate)) {
+					if (_this.isFunction(_this.settings.onValidate)) {
 						if (_this.settings.onValidate()) {
 							_this.moveNext();
 						} else {
@@ -295,5 +295,19 @@
 	$.fn[pluginName] = function (options) {
 		return new Plugin(this, options)
 	};
+
+
+	$.fn[pluginName].stepConfig = function(arr){
+		var arrSteps = [];
+		
+		for(var x = 0; x < arr.length; x++){
+			arrSteps.push({
+				"content": arr[x]
+			})
+		}
+	
+		return arrSteps
+	}
+
 
 })(jQuery, window, document);
