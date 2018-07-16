@@ -31,7 +31,7 @@
 			this.currentStep = 1;
 
 			this.createOverlay()
-				.createSteps()
+				.renderSteps()
 				.setActive();
 
 			return this
@@ -53,7 +53,7 @@
 		},
 
 
-		createSteps: function () {
+		renderSteps: function () {
 			var _this = this;
 
 			if (this.stepCount > 0) {
@@ -102,16 +102,44 @@
 			if (this.settings.showProgress) {
 				this.$element.append(
 					$("<div class='overlay-actions text-center' />")
-						.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
-						.append(function(){
-							var text = _this.stepCount > 0 ? (_this.currentStep + " / " + _this.stepCount) : "";
-							return $("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
-						})
-						.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
+					.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
+					.append(function () {
+						var text = _this.stepCount > 0 ? (_this.currentStep + " / " + _this.stepCount) : "";
+						return $("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
+					})
+					.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
 				);
 
 				this.bindProgressActions();
 			}
+
+			return this
+		},
+
+
+		bindProgressActions: function () {
+			var _this = this;
+
+			$(".btn-back").each(function () {
+				$(this).on("click", function () {
+					_this.moveBack();
+				});
+			});
+
+			$(".btn-next").each(function () {
+				$(this).on("click", function (e) {
+					e.preventDefault();
+					if (_this.isFunction(_this.settings.onValidate)) {
+						if (_this.settings.onValidate()) {
+							_this.moveNext();
+						} else {
+							_this.scrollTop();
+						}
+					} else {
+						_this.moveNext();
+					}
+				})
+			});
 
 			return this
 		},
@@ -167,34 +195,6 @@
 
 			$(window).resize(function () {
 				setPosition();
-			});
-
-			return this
-		},
-
-
-		bindProgressActions: function () {
-			var _this = this;
-
-			$(".btn-back").each(function () {
-				$(this).on("click", function () {
-					_this.moveBack();
-				});
-			});
-
-			$(".btn-next").each(function () {
-				$(this).on("click", function (e) {
-					e.preventDefault();
-					if (_this.isFunction(_this.settings.onValidate)) {
-						if (_this.settings.onValidate()) {
-							_this.moveNext();
-						} else {
-							_this.scrollTop();
-						}
-					} else {
-						_this.moveNext();
-					}
-				})
 			});
 
 			return this
