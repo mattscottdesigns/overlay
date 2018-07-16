@@ -22,14 +22,15 @@ $(element).overlay(Object);
 ```javascript
 {
     enabled: true,
-    showProgress: true
+    showProgress: true,
+    steps: []
 }
 ```
 
 &nbsp;
 
 # __Customize Default Options__ 
-Here is an example of how to customize plugin defaults. This code can exist anywhere in your application.
+Here is an example of how to customize plugin defaults. 
 ```javascript
 $.fn.overlay.defaults = {
     enabled: false
@@ -62,6 +63,14 @@ $.fn.overlay.defaults = {
         {
             title: String,
             content: $(element)
+        },
+        {
+            title: String,
+            content: [
+                $(element1),
+                $(element2),
+                $(element3)
+            ]
         }
     ]
 }
