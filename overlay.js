@@ -12,7 +12,6 @@
 
 
 	function Plugin(element, options) {
-
 		this.$element = $(element).addClass("overlay-element");
 		this.defaults = $.extend({}, defaults, $.fn[pluginName].defaults);
 		this.settings = $.extend({}, this.defaults, options);
@@ -20,7 +19,6 @@
 		if (this.settings.enabled && this.$element.length > 0) {
 			this.init();
 		}
-
 	}
 
 
@@ -59,17 +57,19 @@
 			if (this.stepCount > 0) {
 				this.settings.steps.forEach(function (step, i) {
 					i = i + 1;
-					_this.createStep(i, step.content);
+					_this.createStep(step.content, i);
 				});
 			} else {
-				this.createStep(1, this.$element.children());
+				var $children = this.$element.children();
+				this.createStep($children);
 			}
 
 			return this
 		},
 
 
-		createStep: function (step, content) {
+		createStep: function (content, step) {
+			step = typeof (step) == 'number' ? step : 1;
 			var $step = $("<div class='overlay-step step-" + step + "' />").append(content);
 			this.$element.append($step)
 		},
