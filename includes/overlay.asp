@@ -19,7 +19,7 @@
             return 300
         },
 
-        //  valid() is a function that comes with the jQuery Validate plugin which is what a very large majority of our registration pages use – so its fairly safe to put this as a default setting. I’m pretty sure all the WD’s use #Form1 as their default form id. This can also be overridden on each page the plugin is being used on a case by case basis.
+        //  valid() is a function that comes with the jQuery Validate plugin which is what a very large majority of our registration pages use – so its fairly safe to put this as a default setting. I’m pretty sure all the WD’s use #Form1 as their default form id. This can also be overridden on each page the plugin is being used on a case by case basis, the provided function just needs to return a boolean value.
         onValidate: function () {
             return $("#Form1").valid(); 
         },

@@ -82,9 +82,12 @@
 		var loading = document.querySelectorAll(".overlay-loading");
 		
 		loading.forEach(function(element){
-			element.style.transition = "all .3s";
+			element.style.transition = "all .5s";
 			element.style.opacity = 0;
-			element.style.zIndex = 0;
+
+			setTimeout(function(){
+				element.style.display = "none";
+			},500)
 		});
 	}, 1000);
 </script>

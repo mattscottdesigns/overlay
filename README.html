@@ -22,67 +22,103 @@
     </head>
     <body>
         <h1 id="overlay---jquery-plugin"><strong>Overlay - jQuery Plugin</strong></h1>
-<p>This plugin aims to allow developers to take content already used in an application and place it inside an overlay to present the website in a minimal and tablet friendly way</p>
+<p>This plugin aims to allow developers to take content already used in an application and place it inside an overlay to present the website in a minimal and tablet friendly way.</p>
 <h2 id="requirements"><strong>Requirements</strong></h2>
-<p>The only dependency requirement of this plugin is <strong>jQuery</strong></p>
+<p>The only dependency requirement of this plugin is <strong>jQuery</strong>.</p>
 <h2 id="installation"><strong>Installation</strong></h2>
 <p>All you need to install this plugin is to include the provided CSS/JS files:</p>
 <ul>
 <li><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;overlay.css&quot; /&gt;</code></li>
-<li><code>&lt;script src=&quot;overlay.js&quot; /&gt;</code><br>
- </li>
+<li><code>&lt;script src=&quot;overlay.js&quot; /&gt;</code></li>
 </ul>
+<p> </p>
 <h1 id="usage"><strong>Usage</strong></h1>
-<pre class="hljs"><code><div>$(<span class="hljs-string">"element"</span>).overlay(options);
+<pre class="hljs"><code><div>$(element).overlay(<span class="hljs-built_in">Object</span>);
 </div></code></pre>
 <p> </p>
 <h1 id="default-options"><strong>Default Options</strong></h1>
 <pre class="hljs"><code><div>{
-    <span class="hljs-string">"enabled"</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-string">"showActions"</span>: <span class="hljs-literal">true</span>
+    <span class="hljs-attr">enabled</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">showProgress</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">steps</span>: []
+}
+</div></code></pre>
+<p> </p>
+<h1 id="customize-default-options"><strong>Customize Default Options</strong></h1>
+<p>Here is an example of how to customize plugin defaults.</p>
+<pre class="hljs"><code><div>$.fn.overlay.defaults = {
+    <span class="hljs-attr">enabled</span>: <span class="hljs-literal">false</span> <span class="hljs-comment">// Example: Globally disable plugin</span>
 }
 </div></code></pre>
 <p> </p>
 <h1 id="available-options"><strong>Available Options</strong></h1>
 <pre class="hljs"><code><div>{
-    <span class="hljs-string">"enabled"</span>: <span class="hljs-string">""</span>,
-    <span class="hljs-string">"hide"</span>: <span class="hljs-string">""</span>,
-    <span class="hljs-string">"offsetTop"</span>: <span class="hljs-string">""</span>,
-    <span class="hljs-string">"offsetBottom"</span>: <span class="hljs-string">""</span>,
-    <span class="hljs-string">"onValidate"</span>: <span class="hljs-string">""</span>,
-    <span class="hljs-string">"onSubmit"</span>: <span class="hljs-string">""</span>,
-    <span class="hljs-string">"remove"</span>: <span class="hljs-string">""</span>,
-    <span class="hljs-string">"steps"</span>: [
+    <span class="hljs-attr">enabled</span>: <span class="hljs-built_in">Boolean</span>,
+    <span class="hljs-attr">hide</span>: $(element),
+    <span class="hljs-attr">offsetTop</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
+    },
+    <span class="hljs-attr">offsetBottom</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
+    },
+    <span class="hljs-attr">onValidate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Boolean</span>
+    },
+    <span class="hljs-attr">onSubmit</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+
+    },
+    <span class="hljs-attr">remove</span>: $(element),
+    <span class="hljs-attr">showProgress</span>: <span class="hljs-built_in">Boolean</span>,
+    <span class="hljs-attr">steps</span>: [
         {
-            <span class="hljs-string">"title"</span>: <span class="hljs-string">""</span>,
-            <span class="hljs-string">"content"</span>: <span class="hljs-string">""</span>
+            <span class="hljs-attr">title</span>: <span class="hljs-built_in">String</span>,
+            <span class="hljs-attr">content</span>: $(element)
+        },
+        {
+            <span class="hljs-attr">title</span>: <span class="hljs-built_in">String</span>,
+            <span class="hljs-attr">content</span>: [
+                $(element1),
+                $(element2),
+                $(element3)
+            ]
         }
     ]
 }
 </div></code></pre>
-<h2 id="enabled---function"><strong>enabled</strong> - <em>function</em></h2>
-<p>Allows you to enable/disable the entire plugin</p>
-<h2 id="hide---stringnode"><strong>hide</strong> - <em>string/node</em></h2>
-<p>Hide content via the plugin, it accepts a string or a DOM node</p>
-<h2 id="offsettop---function"><strong>offsetTop</strong> - <em>function</em></h2>
-<p>Set the <strong>top</strong> offset of your content by a certain value. The value returned will be the amount of pixels the content will be offset. This is triggered on page load as well as on window resize.</p>
-<h2 id="offsetbottom---function"><strong>offsetBottom</strong> - <em>function</em></h2>
-<p>Set the <strong>bottom</strong> offset of your content by a certain value. The value returned will be the amount of pixels the content will be offset. This is triggered on page load as well as on window resize.</p>
-<h2 id="onvalidate---function"><strong>onValidate</strong> - <em>function</em></h2>
-<p>A function that gets triggered while trying to submit each step. It must return a boolean value whether or not the conditions have been met and they can proceed to the next step.</p>
-<h2 id="onsubmit---function"><strong>onSubmit</strong> - <em>function</em></h2>
-<p>A function that gets triggered after the onValidate conditions have been met and the user is ready to move on to the next page</p>
-<h2 id="remove---stringnode"><strong>remove</strong> - <em>string/node</em></h2>
-<p>Remove content via the plugin, it accepts a string or a DOM node</p>
-<h2 id="steps---array"><strong>steps</strong> - <em>array</em></h2>
-<p>An array of objects that will represent the &quot;steps&quot; in your application. If this option does not exist - the plugin by default will take the target element of the plugin and place ALL content in the overlay</p>
-<p> </p>
-<h1 id="customize-default-options"><strong>Customize Default Options</strong></h1>
-<p>Here is an example of how to customize plugin defaults. This code can exist anywhere in your application</p>
-<pre class="hljs"><code><div>$.fn.overlay.defaults = {
-    <span class="hljs-string">"enabled"</span>: <span class="hljs-literal">false</span>
+<h2 id="enabled"><strong>enabled</strong></h2>
+<p>Allows you to enable/disable the entire plugin. If this is disabled - the website will fallback to its default functionality.</p>
+<h2 id="hide"><strong>hide</strong></h2>
+<p>Hide content via the plugin. This can also alternatively be done with standard jQuery approach. However the plugin will attempt to hide the elements on each step change to ensure the elements are always hidden.</p>
+<pre class="hljs"><code><div><span class="hljs-comment">// Standard jQuery</span>
+$(element).hide()
+
+<span class="hljs-comment">// Using Plugin Options</span>
+<span class="hljs-keyword">var</span> options = {
+    <span class="hljs-attr">hide</span>: $(element)
 }
 </div></code></pre>
+<h2 id="offsettop"><strong>offsetTop</strong></h2>
+<p>Set the <strong>top</strong> offset of your content by a certain value. The value returned will be the amount of pixels the content will be offset. This is called on page load as well as on window resize.</p>
+<h2 id="offsetbottom"><strong>offsetBottom</strong></h2>
+<p>Set the <strong>bottom</strong> offset of your content by a certain value. The value returned will be the amount of pixels the content will be offset. This is called on page load as well as on window resize.</p>
+<h2 id="onvalidate"><strong>onValidate</strong></h2>
+<p>A function that gets called when trying to move between steps/pages. This function must return a boolean value.</p>
+<h2 id="onsubmit"><strong>onSubmit</strong></h2>
+<p>A function that gets called after the onValidate function returns 'true'. This will allow you to customize what will happen when attempting to move to the next page.</p>
+<h2 id="remove"><strong>remove</strong></h2>
+<p>Remove content via the plugin. This can also alternatively be done with standard jQuery approach. However the plugin will attempt to remove the elements on each step change to ensure the elements are always removed.</p>
+<pre class="hljs"><code><div><span class="hljs-comment">// Standard jQuery</span>
+$(element).remove()
+
+<span class="hljs-comment">// Using Plugin Options</span>
+<span class="hljs-keyword">var</span> options = {
+    <span class="hljs-attr">remove</span>: $(element)
+}
+</div></code></pre>
+<h2 id="showprogress"><strong>showProgress</strong></h2>
+<p>Allows the ability to programatically hide the Progress bar</p>
+<h2 id="steps"><strong>steps</strong></h2>
+<p>An array of objects that will represent the &quot;steps&quot; in your application. If this option does not exist - the plugin by default will take the target element of the plugin and place ALL content in the overlay.</p>
 
     </body>
     </html>

@@ -33,7 +33,7 @@ $(element).overlay(Object);
 Here is an example of how to customize plugin defaults. 
 ```javascript
 $.fn.overlay.defaults = {
-    enabled: false
+    enabled: false // Example: Globally disable plugin
 }
 ```
 

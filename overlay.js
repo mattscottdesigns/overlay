@@ -1,18 +1,13 @@
 ;
 (function ($, window, document, undefined) {
 
-	/**
-	 * TO DO
-	 * - "namespace" option
-	 * - "logging" option
-	 */
-
 	"use strict";
 
 	var pluginName = "overlay",
 		defaults = {
 			"enabled": true,
-			"showProgress": true
+			"showProgress": true,
+			"steps": []
 		};
 
 
@@ -32,12 +27,11 @@
 	$.extend(Plugin.prototype, {
 
 		init: function () {
-			var _this = this;
+			this.stepCount = this.settings.steps.length;
+			this.currentStep = 1;
 
-			_this.createOverlay()
-				.createProps()
-				.createStepContainers()
-				.createStepContent()
+			this.createOverlay()
+				.createSteps()
 				.setActive();
 
 			return this
@@ -45,85 +39,52 @@
 
 
 		createOverlay: function () {
-			var _this = this;
-
-			$("head").append('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />')
+			$("head")
+				.append('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />')
 
 			$("body")
 				.addClass("overlay")
-				.prepend("<div class='overlay-container'><div class='overlay-content' /></div>");
+				.prepend($("<div class='overlay-container'><div class='overlay-content' /></div>"));
 
-			$(".overlay-content").append(_this.$element);
-
-			return this
-		},
-
-
-		createProps: function () {
-			var _this = this;
-
-			_this.$container = $(".overlay-container");
-			_this.$content = $(".overlay-content");
-			_this.$stepContainers = [];
-			_this.stepCount = _this.settings.steps ? _this.settings.steps.length : 1;
-			_this.currentStep = 1;
+			$(".overlay-content")
+				.append(this.$element);
 
 			return this
 		},
 
 
-		createStepContainers: function () {
+		createSteps: function () {
 			var _this = this;
 
-			for (var x = 0; x < _this.stepCount; x++) {
-				_this.$stepContainers.push($("<div class='overlay-step step-" + (x + 1) + "' />"));
-			}
-
-			_this.$element.append(_this.$stepContainers);
-
-			return this
-		},
-
-
-		createStepContent: function () {
-			var _this = this;
-
-			for (var x = 0; x < _this.stepCount; x++) {
-
-				var step = _this.$stepContainers[x];
-
-				if (_this.settings.steps) {
-					var title = _this.settings.steps[x].title;
-					var content = _this.settings.steps[x].content;
-
-					if (title) {
-						step.append(title)
-					}
-
-					if (content) {
-						step.append(content)
-					}
-				} else {
-					step.append(_this.$element.children())
-				}
+			if (this.stepCount > 0) {
+				this.settings.steps.forEach(function (step, i) {
+					i = i + 1;
+					_this.createStep(i, step.content);
+				});
+			} else {
+				this.createStep(1, this.$element.children());
 			}
 
 			return this
 		},
 
 
-		setActive: function (next) {
-			next = typeof (next) !== 'undefined' ? next : 0;
+		createStep: function (step, content) {
+			var $step = $("<div class='overlay-step step-" + step + "' />").append(content);
+			this.$element.append($step)
+		},
 
-			var _this = this;
-			var nextStep = _this.currentStep + next;
 
-			$(".step-" + _this.currentStep).hide().removeClass("active");
+		setActive: function (index) {
+			index = typeof (index) == 'number' ? index : 0;
+			var nextStep = this.currentStep + index;
+
+			$(".step-" + this.currentStep).hide().removeClass("active");
 			$(".step-" + nextStep).fadeIn().addClass("active");
 
-			_this.currentStep = nextStep;
+			this.currentStep = nextStep;
 
-			_this.createProgress()
+			this.createProgress()
 				.hideContent()
 				.removeContent()
 				.positionContent()
@@ -136,22 +97,20 @@
 		createProgress: function () {
 			var _this = this;
 
-			if (_this.settings.steps) {
+			$(".overlay-actions").remove();
 
-				$(".overlay-actions").remove();
-
-				if (_this.settings.showProgress) {
-					var text = _this.stepCount > 1 ? (_this.currentStep + " / " + _this.stepCount) : "";
-
-					_this.$element.append(
-						$("<div class='overlay-actions text-center' />")
+			if (this.settings.showProgress) {
+				this.$element.append(
+					$("<div class='overlay-actions text-center' />")
 						.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
-						.append("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
+						.append(function(){
+							var text = _this.stepCount > 0 ? (_this.currentStep + " / " + _this.stepCount) : "";
+							return $("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
+						})
 						.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
-					);
+				);
 
-					_this.bindStepActions();
-				}
+				this.bindProgressActions();
 			}
 
 			return this
@@ -159,11 +118,10 @@
 
 
 		moveBack: function () {
-			var _this = this;
-			var previousStep = _this.currentStep - 1;
+			var previousStep = this.currentStep - 1;
 
 			if (previousStep > 0) {
-				_this.setActive(-1);
+				this.setActive(-1);
 			} else {
 				window.history.back();
 			}
@@ -173,14 +131,12 @@
 
 
 		moveNext: function () {
-			var _this = this;
-
-			if (_this.currentStep === _this.stepCount) {
-				if (_this.isFunction(_this.settings.onSubmit)) {
-					_this.settings.onSubmit();
+			if (this.currentStep === this.stepCount) {
+				if (this.isFunction(this.settings.onSubmit)) {
+					this.settings.onSubmit();
 				}
 			} else {
-				_this.setActive(1)
+				this.setActive(1)
 			}
 
 			return this
@@ -189,7 +145,6 @@
 
 		positionContent: function () {
 			var _this = this;
-
 
 			function setPosition() {
 				if (_this.settings.offsetTop) {
@@ -218,7 +173,7 @@
 		},
 
 
-		bindStepActions: function () {
+		bindProgressActions: function () {
 			var _this = this;
 
 			$(".btn-back").each(function () {
@@ -247,31 +202,25 @@
 
 
 		hideContent: function () {
-			var _this = this;
-
-			if( _this.isValidObject(_this.settings.hide) ){
-				$(_this.settings.hide).hide();
-			} 
+			if (this.isValidJquery(this.settings.hide)) {
+				$(this.settings.hide).hide();
+			}
 
 			return this
 		},
 
 
 		removeContent: function () {
-			var _this = this;
-
-			if( _this.isValidObject(_this.settings.remove) ){
-				$(_this.settings.remove).remove();
-			} 
+			if (this.isValidJquery(this.settings.remove)) {
+				$(this.settings.remove).remove();
+			}
 
 			return this
 		},
 
 
 		scrollTop: function () {
-			var _this = this;
-
-			_this.$container.animate({
+			$(".overlay-container").animate({
 				scrollTop: 0
 			}, "slow");
 
@@ -284,10 +233,9 @@
 		},
 
 
-		isValidObject: function(obj){
+		isValidJquery: function (obj) {
 			return (obj instanceof jQuery)
 		}
-
 
 	});
 
@@ -295,19 +243,6 @@
 	$.fn[pluginName] = function (options) {
 		return new Plugin(this, options)
 	};
-
-
-	$.fn[pluginName].stepConfig = function(arr){
-		var arrSteps = [];
-		
-		for(var x = 0; x < arr.length; x++){
-			arrSteps.push({
-				"content": arr[x]
-			})
-		}
-	
-		return arrSteps
-	}
 
 
 })(jQuery, window, document);
