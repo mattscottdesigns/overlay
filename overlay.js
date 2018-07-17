@@ -25,14 +25,16 @@
 	$.extend(Plugin.prototype, {
 
 		init: function () {
-			this.stepCount = this.settings.steps.length;
-			this.currentStep = 1;
+			var _this = this;
 
-			this.createOverlay()
-				.renderSteps()
-				.setActive();
+			$(window).on("load", function(e){
+				_this.stepCount = _this.settings.steps.length;
+				_this.currentStep = 1;
 
-			return this
+				_this.createOverlay()
+					.renderSteps()
+					.setActive();
+			});
 		},
 
 
@@ -55,13 +57,12 @@
 			var _this = this;
 
 			if (this.stepCount > 0) {
-				this.settings.steps.forEach(function (step, i) {
-					i = i + 1;
-					_this.createStep(step.content, i);
-				});
+				for( var x = 0; x < this.stepCount; x++ ){
+					var index = (x + 1);
+					_this.createStep(this.settings.steps[x].content, index);
+				}
 			} else {
-				var $children = this.$element.children();
-				this.createStep($children);
+				this.createStep(this.$element.children());
 			}
 
 			return this
@@ -188,10 +189,7 @@
 				}
 			}
 
-
-			$(document).ready(function () {
-				setPosition();
-			});
+			setPosition();
 
 			$(window).resize(function () {
 				setPosition();

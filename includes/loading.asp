@@ -7,7 +7,13 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
+        transition: all .3s;
 	}
+
+    .overlay-loading.hide{
+        opacity: 0;
+        z-index: 0;
+    }
 
 	.spinner {
 		margin: 0;
@@ -77,17 +83,12 @@
 </div>
 
 <script>
-
-	setTimeout(function() {
+	window.addEventListener("load",function(){
 		var loading = document.querySelectorAll(".overlay-loading");
-		
+			
 		loading.forEach(function(element){
-			element.style.transition = "all .5s";
 			element.style.opacity = 0;
-
-			setTimeout(function(){
-				element.style.display = "none";
-			},500)
+			element.style.zIndex = 0;
 		});
-	}, 1000);
+	});
 </script>
