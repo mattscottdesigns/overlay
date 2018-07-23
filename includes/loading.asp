@@ -1,3 +1,12 @@
+<header class="tablet">
+    <div class="row">
+        <div class="col-sm-12">
+
+        </div>
+    </div>
+</header>
+
+
 <style>
 	.overlay-loading {
 		position: fixed;
@@ -85,10 +94,12 @@
 <script>
 	window.addEventListener("load",function(){
 		var loading = document.querySelectorAll(".overlay-loading");
-			
-		loading.forEach(function(element){
+		for (var x = 0; x < loading.length; x++) {
+			var element = loading[x];
+			element.style.transition = "all .5s";
 			element.style.opacity = 0;
-			element.style.zIndex = 0;
-		});
+			element.style.zIndex = -1;
+
+		}
 	});
 </script>
