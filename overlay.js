@@ -26,14 +26,14 @@
 
 		init: function () {
 			var _this = this;
-
 			$(window).on("load", function(e){
 				_this.stepCount = _this.settings.steps.length;
 				_this.currentStep = 1;
 
 				_this.createOverlay()
 					.renderSteps()
-					.setActive();
+					.setActive()
+					.onInit();
 			});
 		},
 
@@ -71,8 +71,7 @@
 
 		createStep: function (content, step) {
 			step = typeof (step) == 'number' ? step : 1;
-			var $step = $("<div class='overlay-step step-" + step + "' />").append(content);
-			this.$element.append($step)
+			this.$element.append($("<div class='overlay-step step-" + step + "' />").append(content))
 		},
 
 
@@ -104,10 +103,7 @@
 				this.$element.append(
 					$("<div class='overlay-actions text-center' />")
 					.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
-					.append(function () {
-						var text = _this.stepCount > 0 ? (_this.currentStep + " / " + _this.stepCount) : "";
-						return $("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
-					})
+					
 					.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
 				);
 
@@ -150,7 +146,8 @@
 			var previousStep = this.currentStep - 1;
 
 			if (previousStep > 0) {
-				this.setActive(-1);
+				this.setActive(-1)
+					.onStepChange();
 			} else {
 				window.history.back();
 			}
@@ -166,6 +163,7 @@
 				}
 			} else {
 				this.setActive(1)
+					.onStepChange();
 			}
 
 			return this
@@ -194,6 +192,25 @@
 			$(window).resize(function () {
 				setPosition();
 			});
+
+			return this
+		},
+
+
+		onInit(){
+			
+			if (typeof (this.settings.onInit) == 'function') {
+				this.settings.onInit()
+			}
+
+			return this
+		},
+
+
+		onStepChange(){
+			if (typeof (this.settings.onStepChange) == 'function') {
+				this.settings.onStepChange()
+			}
 
 			return this
 		},
