@@ -1,31 +1,24 @@
 ;
 (function ($, window, document, undefined) {
 
-	/**
-	 * TO DO
-	 * - "namespace" option
-	 * - "logging" option
-	 */
-
 	"use strict";
 
 	var pluginName = "overlay",
 		defaults = {
 			"enabled": true,
-			"showProgress": true
+			"showProgress": true,
+			"steps": []
 		};
 
 
 	function Plugin(element, options) {
-
-		this.$element = $(element).addClass("overlay-element");
+		this.$element = element.addClass("overlay-element");
 		this.defaults = $.extend({}, defaults, $.fn[pluginName].defaults);
 		this.settings = $.extend({}, this.defaults, options);
 
 		if (this.settings.enabled && this.$element.length > 0) {
 			this.init();
 		}
-
 	}
 
 
@@ -33,100 +26,75 @@
 
 		init: function () {
 			var _this = this;
+			$(window).on("load", function (e) {
+				_this.stepCount = _this.settings.steps.length;
+				_this.currentStep = 1;
 
-			_this.createOverlay()
-				.createProps()
-				.createStepContainers()
-				.createStepContent()
-				.setActive();
-
-			return this
+				_this.createOverlay()
+					.createSteps()
+					.setActive()
+					.onInit();
+			});
 		},
 
 
 		createOverlay: function () {
-			var _this = this;
-
-			$("head").append('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />')
+			$("head")
+				.append('<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />')
 
 			$("body")
 				.addClass("overlay")
 				.prepend("<div class='overlay-container'><div class='overlay-content' /></div>");
 
-			$(".overlay-content").append(_this.$element);
+			$(".overlay-content")
+				.append(this.$element);
 
 			return this
 		},
 
 
-		createProps: function () {
+		createSteps: function () {
 			var _this = this;
 
-			_this.$container = $(".overlay-container");
-			_this.$content = $(".overlay-content");
-			_this.$stepContainers = [];
-			_this.stepCount = _this.settings.steps ? _this.settings.steps.length : 1;
-			_this.currentStep = 1;
-
-			return this
-		},
-
-
-		createStepContainers: function () {
-			var _this = this;
-
-			for (var x = 0; x < _this.stepCount; x++) {
-				_this.$stepContainers.push($("<div class='overlay-step step-" + (x + 1) + "' />"));
-			}
-
-			_this.$element.append(_this.$stepContainers);
-
-			return this
-		},
-
-
-		createStepContent: function () {
-			var _this = this;
-
-			for (var x = 0; x < _this.stepCount; x++) {
-
-				var step = _this.$stepContainers[x];
-
-				if (_this.settings.steps) {
-					var title = _this.settings.steps[x].title;
-					var content = _this.settings.steps[x].content;
-
-					if (title) {
-						step.append(title)
-					}
-
-					if (content) {
-						step.append(content)
-					}
-				} else {
-					step.append(_this.$element.children())
+			if (this.stepCount > 0) {
+				for (var x = 0; x < this.stepCount; x++) {
+					var index = (x + 1);
+					_this.renderStep(this.settings.steps[x].content, index);
 				}
+			} else {
+				this.renderStep(this.$element.children());
 			}
 
 			return this
 		},
 
 
-		setActive: function (next) {
-			var _this = this,
-				next = typeof (next) !== 'undefined' ? next : 0;
+		renderStep: function (content, step) {
+			step = typeof (step) == 'number' ? step : 1;
 
-			var activeStep = _this.currentStep + next;
+			this.$element.append(function () {
+				return $("<div class='overlay-step step-" + step + "' />")
+					.append(content)
+			});
+		},
 
-			$(".step-" + _this.currentStep).hide().removeClass("active");
-			$(".step-" + activeStep).fadeIn().addClass("active");
 
-			_this.currentStep = activeStep;
+		setActive: function (index) {
+			index = typeof (index) == 'number' ? index : 0;
+			var nextStep = this.currentStep + index;
 
-			_this.createProgress()
-				.hideContent()
-				.removeContent()
-				.positionContent()
+			$(".step-" + this.currentStep)
+				.removeClass("active")
+				.hide();
+
+			$(".step-" + nextStep)
+				.addClass("active")
+				.fadeIn();
+
+			this.currentStep = nextStep;
+
+			this.createProgress()
+				.handleContent()
 				.scrollTop();
 
 			return this
@@ -136,89 +104,27 @@
 		createProgress: function () {
 			var _this = this;
 
-			if (_this.settings.steps) {
+			$(".overlay-actions").remove();
 
-				$(".overlay-actions").remove();
-
-				if (_this.settings.showProgress) {
-					var text = _this.stepCount > 1 ? (_this.currentStep + " / " + _this.stepCount) : "";
-
-					_this.$element.append(
-						$("<div class='overlay-actions text-center' />")
-						.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
-						.append("<span class='overlay-progress text-center text-muted'>" + text + "</span>")
-						.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
-					);
-
-					_this.bindStepActions();
-				}
-			}
-
-			return this
-		},
-
-
-		moveBack: function () {
-			var _this = this;
-			var previousStep = _this.currentStep - 1;
-
-			if (previousStep > 0) {
-				_this.setActive(-1);
-			} else {
-				window.history.back();
-			}
-
-			return this
-		},
-
-
-		moveNext: function () {
-			var _this = this;
-
-			if (_this.currentStep === _this.stepCount) {
-				if (_this.settings.onSubmit && _this.isFunction(_this.settings.onSubmit)) {
-					_this.settings.onSubmit();
-				}
-			} else {
-				_this.setActive(1)
-			}
-
-			return this
-		},
-
-
-		positionContent: function () {
-			var _this = this;
-
-
-			function setPosition() {
-				if (_this.settings.offsetTop) {
-					_this.$element.css({
-						"marginTop": _this.settings.offsetTop()
+			if (this.settings.showProgress) {
+				this.$element.append(
+					$("<div class='overlay-actions' />")
+					.append(function () {
+						if (_this.currentStep > 1) {
+							return "<button type='button' class='btn-back'>Back</button>"
+						}
 					})
-				}
+					.append("<button type='submit' class='btn-next'>Next</button>")
+				);
 
-				if (_this.settings.offsetBottom) {
-					_this.$element.css({
-						"marginBottom": _this.settings.offsetBottom()
-					})
-				}
+				this.bindProgress();
 			}
-
-
-			$(document).ready(function () {
-				setPosition();
-			});
-
-			$(window).resize(function () {
-				setPosition();
-			});
 
 			return this
 		},
 
 
-		bindStepActions: function () {
+		bindProgress: function () {
 			var _this = this;
 
 			$(".btn-back").each(function () {
@@ -230,7 +136,7 @@
 			$(".btn-next").each(function () {
 				$(this).on("click", function (e) {
 					e.preventDefault();
-					if (_this.settings.onValidate && _this.isFunction(_this.settings.onValidate)) {
+					if (typeof (_this.settings.onValidate) === "function") {
 						if (_this.settings.onValidate()) {
 							_this.moveNext();
 						} else {
@@ -246,48 +152,139 @@
 		},
 
 
-		hideContent: function () {
-			var _this = this;
+		moveBack: function () {
+			var previousStep = this.currentStep - 1;
 
-			if( _this.isValidObject(_this.settings.hide) ){
-				$(_this.settings.hide).hide();
-			} 
+			if (previousStep > 0) {
+				this.setActive(-1)
+					.onStepChange();
+			}
 
 			return this
 		},
 
 
-		removeContent: function () {
-			var _this = this;
+		moveNext: function () {
+			if (this.currentStep === this.stepCount) {
+				if (typeof (_this.settings.onSubmit) === "function") {
+					this.settings.onSubmit();
+				}
+			} else {
+				this.setActive(1)
+					.onStepChange();
+			}
 
-			if( _this.isValidObject(_this.settings.remove) ){
-				$(_this.settings.remove).remove();
-			} 
+			return this
+		},
+
+
+		handleContent: function () {
+
+			var _this = this;
+			var handler = {
+
+				addContent: function () {
+					var header = $("<div class='overlay-header'></div>").append(_this.settings.header);
+					var footer = $("<div class='overlay-footer'></div>").append(_this.settings.footer);
+
+					$(".overlay-step.active")
+						.prepend(header)
+						.append(footer);
+
+					return this
+				},
+
+				hideContent: function () {
+					if (_this.settings.hide instanceof jQuery) {
+						$(_this.settings.hide).hide();
+					}
+
+					return this
+				},
+
+				positionContent: function () {
+
+					setPosition();
+
+					$(window)
+						.off("resize")
+						.on("resize", function () {
+							setPosition();
+						});
+
+					function setPosition() {
+						if (_this.settings.offsetTop) {
+							_this.$element.css({
+								"marginTop": _this.settings.offsetTop()
+							});
+						}
+
+						if (_this.settings.offsetRight) {
+							_this.$element.css({
+								"marginRight": _this.settings.offsetRight()
+							});
+						}
+
+						if (_this.settings.offsetBottom) {
+							_this.$element.css({
+								"marginBottom": _this.settings.offsetBottom()
+							});
+						}
+
+						if (_this.settings.offsetLeft) {
+							_this.$element.css({
+								"marginLeft": _this.settings.offsetLeft()
+							});
+						}
+					}
+
+					return this
+				},
+
+				removeContent: function () {
+					if (_this.settings.remove instanceof jQuery) {
+						$(_this.settings.remove).remove();
+					}
+
+					return this
+				},
+			}
+
+			handler
+				.hideContent()
+				.removeContent()
+				.addContent()
+				.positionContent();
+
+			return this
+		},
+
+
+		onInit: function () {
+			if (typeof (this.settings.onInit) == 'function') {
+				this.settings.onInit()
+			}
+
+			return this
+		},
+
+
+		onStepChange: function () {
+			if (typeof (this.settings.onStepChange) == 'function') {
+				this.settings.onStepChange()
+			}
 
 			return this
 		},
 
 
 		scrollTop: function () {
-			var _this = this;
-
-			_this.$container.animate({
+			$(".overlay-container").animate({
 				scrollTop: 0
 			}, "slow");
 
 			return this
 		},
-
-
-		isFunction: function (func) {
-			return (typeof (func) === "function")
-		},
-
-
-		isValidObject: function(obj){
-			return (obj instanceof jQuery)
-		}
-
 
 	});
 
@@ -295,5 +292,6 @@
 	$.fn[pluginName] = function (options) {
 		return new Plugin(this, options)
 	};
+
 
 })(jQuery, window, document);
