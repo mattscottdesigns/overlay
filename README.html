@@ -54,19 +54,9 @@
 <h1 id="available-options"><strong>Available Options</strong></h1>
 <pre class="hljs"><code><div>{
     <span class="hljs-attr">enabled</span>: <span class="hljs-built_in">Boolean</span>,
+    <span class="hljs-attr">footer</span>: $(element),
+    <span class="hljs-attr">header</span>: $(element),
     <span class="hljs-attr">hide</span>: $(element),
-    <span class="hljs-attr">offsetTop</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
-    },
-    <span class="hljs-attr">offsetBottom</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
-    },
-    <span class="hljs-attr">onValidate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Boolean</span>
-    },
-    <span class="hljs-attr">onSubmit</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-
-    },
     <span class="hljs-attr">remove</span>: $(element),
     <span class="hljs-attr">showProgress</span>: <span class="hljs-built_in">Boolean</span>,
     <span class="hljs-attr">steps</span>: [
@@ -82,43 +72,63 @@
                 $(element3)
             ]
         }
-    ]
+    ],
+    <span class="hljs-attr">offsetTop</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
+    },
+    <span class="hljs-attr">offsetRight</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
+    },
+    <span class="hljs-attr">offsetBottom</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
+    },
+    <span class="hljs-attr">offsetLeft</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Number</span>
+    },
 }
 </div></code></pre>
 <h2 id="enabled"><strong>enabled</strong></h2>
 <p>Allows you to enable/disable the entire plugin. If this is disabled - the website will fallback to its default functionality.</p>
+<h2 id="footer"><strong>footer</strong></h2>
+<p>With this option you can append specifiy content that will appear at the <strong>top</strong> of every step. An example would be if there needs to be header image.</p>
+<h2 id="header"><strong>header</strong></h2>
+<p>With this option you can append specifiy content that will appear at the <strong>bottom</strong> of every step. An example would be if there needs to be sponsor images or related links.</p>
 <h2 id="hide"><strong>hide</strong></h2>
-<p>Hide content via the plugin. This can also alternatively be done with standard jQuery approach. However the plugin will attempt to hide the elements on each step change to ensure the elements are always hidden.</p>
-<pre class="hljs"><code><div><span class="hljs-comment">// Standard jQuery</span>
-$(element).hide()
-
-<span class="hljs-comment">// Using Plugin Options</span>
-<span class="hljs-keyword">var</span> options = {
-    <span class="hljs-attr">hide</span>: $(element)
-}
-</div></code></pre>
-<h2 id="offsettop"><strong>offsetTop</strong></h2>
-<p>Set the <strong>top</strong> offset of your content by a certain value. The value returned will be the amount of pixels the content will be offset. This is called on page load as well as on window resize.</p>
-<h2 id="offsetbottom"><strong>offsetBottom</strong></h2>
-<p>Set the <strong>bottom</strong> offset of your content by a certain value. The value returned will be the amount of pixels the content will be offset. This is called on page load as well as on window resize.</p>
-<h2 id="onvalidate"><strong>onValidate</strong></h2>
-<p>A function that gets called when trying to move between steps/pages. This function must return a boolean value.</p>
-<h2 id="onsubmit"><strong>onSubmit</strong></h2>
-<p>A function that gets called after the onValidate function returns 'true'. This will allow you to customize what will happen when attempting to move to the next page.</p>
+<p>Hide content via the plugin. This can also alternatively be done with standard jQuery approach. However the plugin will attempt to hide the elements on each step change to ensure the elements are always hidden - even on step changes.</p>
 <h2 id="remove"><strong>remove</strong></h2>
-<p>Remove content via the plugin. This can also alternatively be done with standard jQuery approach. However the plugin will attempt to remove the elements on each step change to ensure the elements are always removed.</p>
-<pre class="hljs"><code><div><span class="hljs-comment">// Standard jQuery</span>
-$(element).remove()
-
-<span class="hljs-comment">// Using Plugin Options</span>
-<span class="hljs-keyword">var</span> options = {
-    <span class="hljs-attr">remove</span>: $(element)
-}
-</div></code></pre>
+<p>Remove content via the plugin. This can also alternatively be done with standard jQuery approach. However the plugin will attempt to remove the elements on each step change to ensure the elements are always removed - even on step changes.</p>
 <h2 id="showprogress"><strong>showProgress</strong></h2>
 <p>Allows the ability to programatically hide the Progress bar</p>
 <h2 id="steps"><strong>steps</strong></h2>
 <p>An array of objects that will represent the &quot;steps&quot; in your application. If this option does not exist - the plugin by default will take the target element of the plugin and place ALL content in the overlay.</p>
+<h2 id="offsettop-offsetright-offsetbottom-offsetleft"><strong>offsetTop</strong>, <strong>offsetRight</strong>, <strong>offsetBottom</strong>, <strong>offsetLeft</strong></h2>
+<p>Set the offset of your content by a certain value. The value returned will be the amount of pixels the content will be offset. This is called on page load as well as on window resize.</p>
+<p> </p>
+<h1 id="lifecycle-events"><strong>Lifecycle Events</strong></h1>
+<p>With the following lifecycle events you should be able to manipulate the page anyway you see fit through options.</p>
+<pre class="hljs"><code><div>{
+    <span class="hljs-attr">onInit</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+
+    },
+    <span class="hljs-attr">onStepChange</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+
+    },
+    <span class="hljs-attr">onValidate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Boolean</span>
+    },
+    <span class="hljs-attr">onSubmit</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+
+    },
+}
+</div></code></pre>
+<h2 id="oninit"><strong>onInit</strong></h2>
+<p>A function that gets called after the the plugin has completed rendering and is displaying the first step.</p>
+<h2 id="onstepchange"><strong>onStepChange</strong></h2>
+<p>A function that gets called after the plug has proceeded to the next step and has completed rendering the next step.</p>
+<h2 id="onvalidate"><strong>onValidate</strong></h2>
+<p>A function that gets called when trying to move between steps/pages. This function must return a boolean value.</p>
+<h2 id="onsubmit"><strong>onSubmit</strong></h2>
+<p>A function that gets called after the onValidate function returns 'true'. This will allow you to customize what will happen when attempting to move to the next page.</p>
 
     </body>
     </html>

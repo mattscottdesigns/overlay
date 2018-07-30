@@ -12,7 +12,7 @@
 
 
 	function Plugin(element, options) {
-		this.$element = $(element).addClass("overlay-element");
+		this.$element = element.addClass("overlay-element");
 		this.defaults = $.extend({}, defaults, $.fn[pluginName].defaults);
 		this.settings = $.extend({}, this.defaults, options);
 
@@ -26,12 +26,12 @@
 
 		init: function () {
 			var _this = this;
-			$(window).on("load", function(e){
+			$(window).on("load", function (e) {
 				_this.stepCount = _this.settings.steps.length;
 				_this.currentStep = 1;
 
 				_this.createOverlay()
-					.renderSteps()
+					.createSteps()
 					.setActive()
 					.onInit();
 			});
@@ -44,7 +44,7 @@
 
 			$("body")
 				.addClass("overlay")
-				.prepend($("<div class='overlay-container'><div class='overlay-content' /></div>"));
+				.prepend("<div class='overlay-container'><div class='overlay-content' /></div>");
 
 			$(".overlay-content")
 				.append(this.$element);
@@ -53,25 +53,29 @@
 		},
 
 
-		renderSteps: function () {
+		createSteps: function () {
 			var _this = this;
 
 			if (this.stepCount > 0) {
-				for( var x = 0; x < this.stepCount; x++ ){
+				for (var x = 0; x < this.stepCount; x++) {
 					var index = (x + 1);
-					_this.createStep(this.settings.steps[x].content, index);
+					_this.renderStep(this.settings.steps[x].content, index);
 				}
 			} else {
-				this.createStep(this.$element.children());
+				this.renderStep(this.$element.children());
 			}
 
 			return this
 		},
 
 
-		createStep: function (content, step) {
+		renderStep: function (content, step) {
 			step = typeof (step) == 'number' ? step : 1;
-			this.$element.append($("<div class='overlay-step step-" + step + "' />").append(content))
+
+			this.$element.append(function () {
+				return $("<div class='overlay-step step-" + step + "' />")
+					.append(content)
+			});
 		},
 
 
@@ -79,15 +83,18 @@
 			index = typeof (index) == 'number' ? index : 0;
 			var nextStep = this.currentStep + index;
 
-			$(".step-" + this.currentStep).hide().removeClass("active");
-			$(".step-" + nextStep).fadeIn().addClass("active");
+			$(".step-" + this.currentStep)
+				.removeClass("active")
+				.hide();
+
+			$(".step-" + nextStep)
+				.addClass("active")
+				.fadeIn();
 
 			this.currentStep = nextStep;
 
 			this.createProgress()
-				.hideContent()
-				.removeContent()
-				.positionContent()
+				.handleContent()
 				.scrollTop();
 
 			return this
@@ -101,20 +108,23 @@
 
 			if (this.settings.showProgress) {
 				this.$element.append(
-					$("<div class='overlay-actions text-center' />")
-					.append("<button type='button' class='btn-back'><i class='fa fa-angle-left fa-2x'></i></button>")
-					
-					.append("<button type='submit' class='btn-next'><i class='fa fa-angle-right fa-2x'></i></button>")
+					$("<div class='overlay-actions' />")
+					.append(function () {
+						if (_this.currentStep > 1) {
+							return "<button type='button' class='btn-back'>Back</button>"
+						}
+					})
+					.append("<button type='submit' class='btn-next'>Next</button>")
 				);
 
-				this.bindProgressActions();
+				this.bindProgress();
 			}
 
 			return this
 		},
 
 
-		bindProgressActions: function () {
+		bindProgress: function () {
 			var _this = this;
 
 			$(".btn-back").each(function () {
@@ -126,7 +136,7 @@
 			$(".btn-next").each(function () {
 				$(this).on("click", function (e) {
 					e.preventDefault();
-					if (_this.isFunction(_this.settings.onValidate)) {
+					if (typeof (_this.settings.onValidate) === "function") {
 						if (_this.settings.onValidate()) {
 							_this.moveNext();
 						} else {
@@ -148,8 +158,6 @@
 			if (previousStep > 0) {
 				this.setActive(-1)
 					.onStepChange();
-			} else {
-				window.history.back();
 			}
 
 			return this
@@ -158,7 +166,7 @@
 
 		moveNext: function () {
 			if (this.currentStep === this.stepCount) {
-				if (this.isFunction(this.settings.onSubmit)) {
+				if (typeof (_this.settings.onSubmit) === "function") {
 					this.settings.onSubmit();
 				}
 			} else {
@@ -170,35 +178,89 @@
 		},
 
 
-		positionContent: function () {
+		handleContent: function () {
+
 			var _this = this;
+			var handler = {
 
-			function setPosition() {
-				if (_this.settings.offsetTop) {
-					_this.$element.css({
-						"marginTop": _this.settings.offsetTop()
-					})
-				}
+				addContent: function () {
+					var header = $("<div class='overlay-header'></div>").append(_this.settings.header);
+					var footer = $("<div class='overlay-footer'></div>").append(_this.settings.footer);
 
-				if (_this.settings.offsetBottom) {
-					_this.$element.css({
-						"marginBottom": _this.settings.offsetBottom()
-					})
-				}
+					$(".overlay-step.active")
+						.prepend(header)
+						.append(footer);
+
+					return this
+				},
+
+				hideContent: function () {
+					if (_this.settings.hide instanceof jQuery) {
+						$(_this.settings.hide).hide();
+					}
+
+					return this
+				},
+
+				positionContent: function () {
+
+					setPosition();
+
+					$(window)
+						.off("resize")
+						.on("resize", function () {
+							setPosition();
+						});
+
+					function setPosition() {
+						if (_this.settings.offsetTop) {
+							_this.$element.css({
+								"marginTop": _this.settings.offsetTop()
+							});
+						}
+
+						if (_this.settings.offsetRight) {
+							_this.$element.css({
+								"marginRight": _this.settings.offsetRight()
+							});
+						}
+
+						if (_this.settings.offsetBottom) {
+							_this.$element.css({
+								"marginBottom": _this.settings.offsetBottom()
+							});
+						}
+
+						if (_this.settings.offsetLeft) {
+							_this.$element.css({
+								"marginLeft": _this.settings.offsetLeft()
+							});
+						}
+					}
+
+					return this
+				},
+
+				removeContent: function () {
+					if (_this.settings.remove instanceof jQuery) {
+						$(_this.settings.remove).remove();
+					}
+
+					return this
+				},
 			}
 
-			setPosition();
-
-			$(window).resize(function () {
-				setPosition();
-			});
+			handler
+				.hideContent()
+				.removeContent()
+				.addContent()
+				.positionContent();
 
 			return this
 		},
 
 
-		onInit(){
-			
+		onInit: function () {
 			if (typeof (this.settings.onInit) == 'function') {
 				this.settings.onInit()
 			}
@@ -207,27 +269,9 @@
 		},
 
 
-		onStepChange(){
+		onStepChange: function () {
 			if (typeof (this.settings.onStepChange) == 'function') {
 				this.settings.onStepChange()
-			}
-
-			return this
-		},
-
-
-		hideContent: function () {
-			if (this.isValidJquery(this.settings.hide)) {
-				$(this.settings.hide).hide();
-			}
-
-			return this
-		},
-
-
-		removeContent: function () {
-			if (this.isValidJquery(this.settings.remove)) {
-				$(this.settings.remove).remove();
 			}
 
 			return this
@@ -241,16 +285,6 @@
 
 			return this
 		},
-
-
-		isFunction: function (func) {
-			return (typeof (func) === "function")
-		},
-
-
-		isValidJquery: function (obj) {
-			return (obj instanceof jQuery)
-		}
 
 	});
 
