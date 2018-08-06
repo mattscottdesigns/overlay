@@ -111,7 +111,7 @@
 					$("<div class='overlay-actions' />")
 					.append(function () {
 						if (_this.currentStep > 1) {
-							return "<button type='button' class='btn-back'>Back</button>"
+							return "<button type='button' class='btn-back'>Previous</button>"
 						}
 					})
 					.append("<button type='submit' class='btn-next'>Next</button>")
@@ -166,7 +166,7 @@
 
 		moveNext: function () {
 			if (this.currentStep === this.stepCount) {
-				if (typeof (_this.settings.onSubmit) === "function") {
+				if (typeof (this.settings.onSubmit) === "function") {
 					this.settings.onSubmit();
 				}
 			} else {
