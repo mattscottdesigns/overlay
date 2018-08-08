@@ -136,7 +136,7 @@
 			$(".btn-next").each(function () {
 				$(this).on("click", function (e) {
 					e.preventDefault();
-					if (typeof (_this.settings.onValidate) === "function") {
+					if (typeof (_this.settings.onValidate) == "function") {
 						if (_this.settings.onValidate()) {
 							_this.moveNext();
 						} else {
@@ -155,7 +155,7 @@
 		moveBack: function () {
 			var previousStep = this.currentStep - 1;
 
-			if (previousStep > 0) {
+			if (previousStep > 0) {		
 				this.setActive(-1)
 					.onStepChange();
 			}
@@ -165,8 +165,8 @@
 
 
 		moveNext: function () {
-			if (this.currentStep === this.stepCount) {
-				if (typeof (this.settings.onSubmit) === "function") {
+			if ((this.currentStep === this.stepCount) || this.stepCount === 0) {
+				if (typeof (this.settings.onSubmit) == "function") {
 					this.settings.onSubmit();
 				}
 			} else {
